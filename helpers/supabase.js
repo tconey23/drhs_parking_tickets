@@ -20,7 +20,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: AsyncStorage,
+    storage: AsyncStorage, 
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false, // important in native

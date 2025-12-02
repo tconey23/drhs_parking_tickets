@@ -9,7 +9,7 @@ const AppHeader = ({setResetForm}) => {
     const insets = useSafeAreaInsets()
 
   return (
-    <View style={{
+    <View style={{ 
         height: '8%', 
         width: '100%', 
         alignItems: 'center ', 

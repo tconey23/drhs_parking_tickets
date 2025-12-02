@@ -6,7 +6,7 @@ import {
   Button,
   StyleSheet,
   Pressable,
-} from 'react-native';
+} from 'react-native'; 
 
 const Camera = ({onPictureTaken}) => {
   const [permission, requestPermission] = useCameraPermissions();

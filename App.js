@@ -28,12 +28,12 @@ const SafeArea = () => {
           {/* <AppHeader setResetForm={setResetForm}/>
           <InputForm resetForm={resetForm}/> */}
     </View>
-  )
+  ) 
 }
 
 export default function App() {
   const [resetForm, setResetForm] = useState(0)
-
+ 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={['top', 'right', 'bottom', 'left']}>

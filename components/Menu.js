@@ -5,10 +5,10 @@ import {View, Text, StyleSheet, Button, TouchableOpacity, Modal} from 'react-nat
 
 
 const Menu = ({setResetForm}) => {
-    const [openMenu, setOpenMenu] = useState(false)
+    const [openMenu, setOpenMenu] = useState(false) 
     const insets = useSafeAreaInsets()
 
-  return (
+  return ( 
     <View style={styles.container}>
       <TouchableOpacity style={styles.burger} onPress={() => setOpenMenu(prev => !prev)}>
         <Icon name='menu' type='font-awesome'/>

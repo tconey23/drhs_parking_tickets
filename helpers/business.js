@@ -7,7 +7,7 @@
   { label: "Red", value: "Red" },
   { label: "Brown", value: "Brown" },
   { label: "Green", value: "Green" },
-  { label: "Beige / Tan", value: "Beige" },
+  { label: "Beige / Tan", value: "Beige" }, 
   { label: "Gold", value: "Gold" },
   { label: "Yellow", value: "Yellow" },
   { label: "Orange", value: "Orange" },

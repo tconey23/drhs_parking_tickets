@@ -275,8 +275,13 @@ const formatDate = (d) =>
   const formatTime = (d) =>
     d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); // e.g. 08:15 PM
 
-  const onChange = (event, selectedDate) => {
-  const currentDate = selectedDate || date;
+const onChange = (event, selectedDate) => {
+  // On iOS when cancelling, event can be "dismissed"
+  if (event?.type === 'dismissed') {
+    return;
+  }
+
+  const currentDate = selectedDate || date || new Date();
   setDate(currentDate);
 
   setFormData(prev =>
@@ -306,6 +311,7 @@ const formatDate = (d) =>
     })
   );
 };
+
 
 useEffect(() => {
   setFormData(prev =>
@@ -389,7 +395,13 @@ const addNewReason = async () => {
     <View style={styles.container}>
         <Image style={{width: '100%', flex: 1, position: 'absolute', opacity: 0.4, zIndex: -1, resizeMode: 'contain', top: '-20%', left: 0}} source={require('../assets/DRHS_Logo.png')}/>
         <Text>Date: </Text>
-        <DateTimePicker value={date} mode="datetime" onChange={onChange} />
+        <DateTimePicker
+          value={date || new Date()}
+          mode="datetime"
+          display="default"
+          onChange={onChange}
+        />
+
 
       {formData.map((wrapper, i) => {
           const fObj = Object.values(wrapper)[0];
@@ -517,10 +529,30 @@ const addNewReason = async () => {
                         setActiveDropdown(null);
                     }
                 }}
-                setValue={(callback) => {
-                    const newValue = callback();
-                    updateField(fObj.name, "val", newValue);
+                setValue={(valueOrCallback) => {
+                  setFormData(prev =>
+                    prev.map(entry => {
+                      const key = Object.keys(entry)[0];
+                      const field = entry[key];
+
+                      if (field.name !== fObj.name) return entry;
+
+                      const currentValue = field.val;
+                      const newValue =
+                        typeof valueOrCallback === 'function'
+                          ? valueOrCallback(currentValue)
+                          : valueOrCallback;
+
+                      return {
+                        [key]: {
+                          ...field,
+                          val: newValue,
+                        },
+                      };
+                    })
+                  );
                 }}
+
                 onSelectItem={() => {
                     setShowDrop(null)
                 }}

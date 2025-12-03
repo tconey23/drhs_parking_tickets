@@ -66,7 +66,7 @@ const compilePayload = () => {
   submitTicket(payload)
 
         setTicketNumber(MIN_TICKET)
-        setFormData([...formDefault])
+        setFormData([...formDefault]) 
         pullMakes()
 };
  

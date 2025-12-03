@@ -1,5 +1,5 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react'; 
 import {
   View,
   Text,

@@ -26,7 +26,7 @@ const SafeArea = () => {
       height: '100%'
       }}>
           {/* <AppHeader setResetForm={setResetForm}/>
-          <InputForm resetForm={resetForm}/> */}
+          <InputForm resetForm={resetForm}/> */} 
     </View>
   ) 
 }

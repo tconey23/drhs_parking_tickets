@@ -1,6 +1,6 @@
 import { Icon } from '@rneui/base'
 import {useEffect, useState} from 'react'
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context' 
 import {View, Text, StyleSheet, Button, TouchableOpacity, Modal} from 'react-native' 
 
 

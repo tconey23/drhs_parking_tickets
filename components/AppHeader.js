@@ -6,7 +6,7 @@ import Menu from './Menu';
 
 const AppHeader = ({setResetForm}) => {
 
-    const insets = useSafeAreaInsets()
+    const insets = useSafeAreaInsets() 
 
   return (
     <View style={{ 

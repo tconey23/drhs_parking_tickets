@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/DRHS_Logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -27,13 +27,16 @@
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon-32x32.png"
     },
     "extra": {
       "eas": {
         "projectId": "7c28c91a-7e01-4227-b6ee-673db64ec018"
       }
     },
-    "owner": "tconey23"
+    "owner": "tconey23",
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

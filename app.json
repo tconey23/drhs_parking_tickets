@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "drhs_parking_tickets", 
+    "name": "drhs_parking_tickets",
     "slug": "drhs_parking_tickets",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,10 +10,14 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff" 
+      "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tomconey.drhsparkingtickets",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -24,6 +28,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7c28c91a-7e01-4227-b6ee-673db64ec018"
+      }
+    },
+    "owner": "tconey23"
   }
 }

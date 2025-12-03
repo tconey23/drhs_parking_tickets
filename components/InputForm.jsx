@@ -1,17 +1,19 @@
 
 import { useState, useEffect, useEffectEvent } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Modal, Touchable } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {makesArray, carColorItems} from '../helpers/business';
 import Papa from 'papaparse';
-import { Icon } from '@rneui/themed';
+import { Entypo, FontAwesome } from '@expo/vector-icons';
 import Camera from './Camera'
 import {
   SafeAreaView
 } from 'react-native-safe-area-context';
 import { submitTicket, getMakes } from '../helpers/supabase';
 import { supabase } from '../helpers/supabase';
+import { Image } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native';
 
 const SHEET_ID = '1mhjy9WNMfre7WOXnCHJwdrXVDM2XJf6-onL2a5jN8dI';
 const GID = '0';
@@ -34,9 +36,9 @@ const ticketItems = allTicketNumbers.map(n => ({
   value: n,
 }));
 
-const FONT_SIZE = 15
+const FONT_SIZE = 18
 
-const InputForm = ({resetForm}) => {
+const InputForm = ({resetForm, setResetForm}) => {
   const [date, setDate] = useState(new Date());
   const [ticketNumber, setTicketNumber] = useState(MIN_TICKET);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -45,50 +47,85 @@ const InputForm = ({resetForm}) => {
   const [showDrop, setShowDrop] = useState()
   const [addPhoto, setAddPhoto] = useState(false)
   const [payload, setPayload] = useState()
+  const [otherReason, SetOtherReason] = useState(false);
+  const [reasons, setReasons] = useState([])
+  const [newReason, setNewReason] = useState(null)
+
+  const getReasons = async () => {
+
+    let { data: reasons, error } = await supabase
+        .from('reasons')
+        .select('*')
+
+        let rsn = reasons?.map((r) => ({
+            label: r.label, value: r.value 
+        }))
+
+        rsn.push({label: 'Other', value: 'Other'})
+
+        updateField('Reason', 'items', rsn)
+  }
 
   useEffect(() => {
     if(resetForm){
-        setTicketNumber(MIN_TICKET)
+        setTicketNumber(MIN_TICKET) 
         setFormData([...formDefault])
         pullMakes()
+        getReasons()
     }
 }, [resetForm])
 
 const compilePayload = () => {
-  const payload = formData.reduce((acc, entry) => {
-    const key = Object.keys(entry)[0];  // internal name ("date", "ticket", etc.)
-    const field = entry[key];           // { val, name, ... }
-
-    acc[field.key] = field.val;        // use visible name as Supabase column (Date, Time, Ticket)
+  const raw = formData.reduce((acc, entry) => {
+    const key = Object.keys(entry)[0];
+    const field = entry[key];
+    acc[field.key] = field.val;
     return acc;
   }, {});
 
-  submitTicket(payload)
+  // 🔹 If "other" has a value, make it the reason
+//   if (raw.other && raw.other.trim() !== "") {
+//     raw.reason = raw.other;
+//   }
 
-        setTicketNumber(MIN_TICKET)
-        setFormData([...formDefault]) 
-        pullMakes()
+  // Optionally remove "other" so it's not saved as its own field:
+  delete raw.other;
+
+  submitTicket(raw);
+
+  setTicketNumber(MIN_TICKET);
+  setFormData([...formDefault]);
+  pullMakes();
+  setResetForm(prev => prev +1)
 };
  
 const formDefault = [
     { date:    { key: 'date', val: '',          open: false, name: 'Date',            items: [], type: 'date'  } },
+    
     { time:    { key: 'time', val: '',          open: false, name: 'Time',            items: [], type: 'time'  } },
+    
     { ticket_num:  { key: 'ticket_num', val: ticketNumber,open: false, name: 'Ticket',   items: ticketItems, type: 'drop' } },
+    
     { officer:  { key: 'officer', val: '',          open: false, name: 'Officer', items: [
-        { label: 'Tiffany Ashraf', value: 'Tiffany Ashraf' },
-        { label: 'Ron Perko',      value: 'Ron Perko' },
-        { label: 'Tom Coney',      value: 'Tom Coney' },
-      ], type: 'drop',
-    } },
+            { label: 'Tiffany Ashraf', value: 'Tiffany Ashraf' },
+            { label: 'Ron Perko',      value: 'Ron Perko' },
+            { label: 'Tom Coney',      value: 'Tom Coney' },
+            ], type: 'drop',
+        } 
+    },
+
     { lot:   { key: 'parking_lot', val: '',   open: false, name: 'Lot', items: [{label: 'Main Lot', value: 'Main Lot'}, {label: 'B Lot', value: 'B Lot'}], type: 'drop'  } },
-    { reason:  { key: 'reason', val: '',          open: false, name: 'Reason',          items: [
-      { label: 'Parked Illegally', value: 'Parked Illegally' },
-        { label: 'No permit',      value: 'No permit' },
-        { label: 'Other',      value: 'Other' },
-    ], type: 'drop'  } },
+    
+    { reason:  { key: 'reason', val: '', open: false, name: 'Reason', items: reasons, type: 'drop'  }},
+
+    { other: { key: 'other', val: '', open: false, name: 'Other Reason', items: [], type: 'text' } },
+    
     { make:    { key: 'make', val: '',          open: false, name: 'Make', items: [], type: 'drop'  } },
+    
     { model:   { key: 'model', val: '',          open: false, name: 'Model', items: [], type: 'drop'  } },
+    
     { color:   { key: 'color', val: '',          open: false, name: 'Color',           items: carColorItems, type: 'drop'  } },
+    
     { plate:   { key: 'plate_num', val: '',   open: false, name: 'Plate', items: [], type: 'text'  } },
   ]
 
@@ -123,6 +160,7 @@ const pullModels = async (make) => {
 
   useEffect(() => {
     pullMakes()
+    getReasons()
   }, [])
 
 
@@ -298,18 +336,58 @@ useEffect(() => {
   );
 }, []); // run once on mount
 
+    // 🔹 Handle Make → Models
 useEffect(() => {
-  const makeField = getFieldByName(formData, "Make");
-  const modelField = getFieldByName(formData, "Model")
+  const makeField  = getFieldByName(formData, "Make");
+  const modelField = getFieldByName(formData, "Model");
 
-  if(makeField.val && modelField?.items?.length ==0) {
-    pullModels(makeField.val)
+  if (makeField?.val && (!modelField?.items || modelField.items.length === 0)) {
+    pullModels(makeField.val);
   }
 }, [formData]);
 
+// 🔹 Handle Reason → Other Reason visibility & clearing
+useEffect(() => {
+  const reasField  = getFieldByName(formData, "Reason");
+  const otherField = getFieldByName(formData, "Other Reason");
+
+  if (reasField?.val === "Other") {
+    if (!otherReason) {
+      SetOtherReason(true);
+    }
+  } else {
+    if (otherReason) {
+      SetOtherReason(false);
+    }
+    // Only clear if there's actually text, to avoid infinite updates
+    if (otherField?.val) {
+      updateField("Other Reason", "val", "");
+    }
+  }
+}, [formData, otherReason]);
+
+const addNewReason = async () => {
+
+    const { data, error } = await supabase
+        .from('reasons')
+        .insert([
+            { label: newReason, value: newReason },
+        ])
+        .select()
+        updateField("Reason", "val", newReason)
+        setNewReason(null)
+
+        getReasons()
+          
+}
+
   return (
     <SafeAreaView>
+    <KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={200}>
+
+    <ScrollView>
     <View style={styles.container}>
+        <Image style={{width: '100%', flex: 1, position: 'absolute', opacity: 0.4, zIndex: -1, resizeMode: 'contain', top: '-20%', left: 0}} source={require('../assets/DRHS_Logo.png')}/>
         <Text>Date: </Text>
         <DateTimePicker value={date} mode="datetime" onChange={onChange} />
 
@@ -329,7 +407,7 @@ useEffect(() => {
             }
             
             
-            let reqIcon = (<Icon 
+            let reqIcon = (<FontAwesome 
                 name='asterisk'
                 type='font-awesome'
                 color='#f50'
@@ -341,7 +419,6 @@ useEffect(() => {
                     <View
                     key={fObj.name}
                     style={{
-                        backgroundColor: 'whitesmoke',
                         width: '100%',
                         flexDirection: 'column',
                         marginBottom: 0,
@@ -349,7 +426,7 @@ useEffect(() => {
                         position: 'relative',
                     }}
                     >
-            {!isNone && !isDrop && !fObj.name === 'Plate' && (
+            {!isNone && !isDrop && fObj.name !== 'Plate' && fObj.name !== 'Other Reason' && (
                 <View style={{flexDirection: 'row', alignItems: 'center', width: '80%', height: 50}}> 
                 <Text style={{ width: '100%', marginBottom: 0, fontSize: FONT_SIZE}}>
                   {`${fObj.name}: ${fObj.val ?? ''}`}
@@ -357,14 +434,47 @@ useEffect(() => {
               </View>
             )}
 
+            {fObj.name === 'Other Reason' && otherReason && (
+                <View
+                style={{
+                    paddingVertical: 10,
+                    width: '50%',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                }}
+                >
+                    <Text style={{ fontSize: FONT_SIZE }}>Other reason: </Text>
+                    <View style={{ width: '80%', justifyContent: 'space-evenly', alignItems: 'center' }}>
+                    <TextInput
+                        style={{
+                            width: '100%',
+                            fontSize: FONT_SIZE,
+                            textAlign: 'left',
+                            height: 40,
+                            backgroundColor: 'whitesmoke',
+                            paddingHorizontal: 8,
+                        }}
+                        value={newReason}
+                        onChangeText={(text) => setNewReason(text)}
+                        />
+                    </View>
+                    <TouchableOpacity onPress={addNewReason}>
+                        <Text style={{fontSize: FONT_SIZE, marginHorizontal: 10, color: 'blue'}}>Add reason?</Text>
+                    </TouchableOpacity>
+                </View>
+                )}
+
             {isDrop && (
                 <View style={{flexDirection: 'row', alignItems: 'center', width: '80%', height: 50}}> 
-              <View style={{minWidth: 10}}>
-                {!fObj.val && reqIcon}
-              </View>
-                <Text style={{ width: '100%', marginBottom: 0, fontSize: FONT_SIZE}}>
-                  {`${fObj.name}: ${fObj.val ?? ''}`}
-                </Text>
+                <View style={{minWidth: 10}}>
+                    {!fObj.val && reqIcon}
+                </View>
+                <View style={{justifyContent: 'flex-start', width: '100%'}}>
+                    <Text style={{ width: '100%', marginBottom: 0, fontSize: FONT_SIZE, fontWeight: 800}}>
+                    {`${fObj.name}: ${fObj.val ?? ''}`}
+                    </Text>
+                </View>
                 <TouchableOpacity onPress={() => {
                     if(showDrop !== fObj.name){
                         setShowDrop(fObj.name)
@@ -435,24 +545,27 @@ useEffect(() => {
                 <View
                 style={{
                     paddingVertical: 10,
-                    backgroundColor: 'whitesmoke',
                     width: '80%',
-                    flexDirection: 'row'
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start'
                 }}
                 >
                 <Text style={{fontSize: FONT_SIZE}}>License plate: </Text>
-                <TextInput
-                  style={{ width: '80%', fontSize: FONT_SIZE, backgroundColor: 'gray', textAlign: 'center'}}
-                  value={String(fObj.val ?? '')}
-                  onChangeText={(text) =>
-                    updateField(fObj.name, 'val', text)
-                }
-                onBlur={() => {
-                    if (fObj.name === 'Plate') {
-                        plateLookup(fObj.val);
+                <View style={{width: '100%', justifyContent: 'center', alignItems: 'center'}}>
+                    <TextInput
+                    style={{ width: '50%', fontSize: FONT_SIZE, textAlign: 'center', height: 30, backgroundColor: 'whitesmoke',}}
+                    value={String(fObj.val ?? '')}
+                    onChangeText={(text) =>
+                        updateField(fObj.name, 'val', text)
                     }
-                }}
-                />
+                    onBlur={() => {
+                        if (fObj.name === 'Plate') {
+                            plateLookup(fObj.val);
+                        }
+                    }}
+                    />
+                </View>
               </View>
             )}
 
@@ -466,15 +579,18 @@ useEffect(() => {
           </View>
         );
     })}
-            <TouchableOpacity style={styles.button} onPress={() => setAddPhoto(prev => !prev)}>
-              <Text style={{fontSize: FONT_SIZE, textAlign: 'center'}}>Add photo</Text>
-            </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.button, {marginVertical: 50}]} 
-            onPress={() => compilePayload()}
-            >
-              <Text style={{fontSize: FONT_SIZE, textAlign: 'center'}}>Submit</Text>
-            </TouchableOpacity>
+    <View style={{width: '100%', alignItems: 'center'}}>
+        <TouchableOpacity style={styles.button} onPress={() => setAddPhoto(prev => !prev)}>
+            <Text style={{fontSize: FONT_SIZE, textAlign: 'center'}}>Add photo</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.button, {marginVertical: 50}]} 
+        onPress={() => compilePayload()}
+        >
+            <Text style={{fontSize: FONT_SIZE, textAlign: 'center'}}>Submit</Text>
+        </TouchableOpacity>
+    </View>
 
       <Modal
         visible={!!addPhoto}
@@ -485,7 +601,7 @@ useEffect(() => {
         <View style={styles.modalContainer}>
           <Camera
             onPictureTaken={(photo) => {
-                // console.log('Got photo in parent:', photo.uri);
+                console.log('Got photo in parent:', photo.uri);
                 
                 setAddPhoto(false);
             }}
@@ -503,6 +619,8 @@ useEffect(() => {
         </View>
       </Modal>
     </View>
+    </ScrollView>
+    </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -514,16 +632,19 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 5,
     justifyContent: 'flex-start',
-    height: '100%',
+    height: '100%', 
+    backgroundColor: '#ffffff7a',
   },
   button: {
-    width: '100%',
+    width: '33%',
     backgroundColor: 'lightblue',
     borderRadius: 20,
     elevation: 2,
     shadowColor: 'gray',
     shadowOffset: [5,2],
-    shadowOpacity: 0.8
+    shadowOpacity: 0.8,
+    height: 40,
+    justifyContent: 'center'
   },
   modalContainer: {
     height: '95%',

@@ -1,4 +1,4 @@
-import { Icon } from '@rneui/base'
+import { Entypo } from '@expo/vector-icons';
 import {useEffect, useState} from 'react'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context' 
 import {View, Text, StyleSheet, Button, TouchableOpacity, Modal} from 'react-native' 
@@ -11,7 +11,7 @@ const Menu = ({setResetForm}) => {
   return ( 
     <View style={styles.container}>
       <TouchableOpacity style={styles.burger} onPress={() => setOpenMenu(prev => !prev)}>
-        <Icon name='menu' type='font-awesome'/>
+        <Entypo name='menu' type='entypo' size={30}/>
       </TouchableOpacity>
 
       <Modal
@@ -48,11 +48,13 @@ const Menu = ({setResetForm}) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    height: '100%',
     position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center'
+    top: 0,
+    left: 0,
+    paddingTop: 8,
+    paddingLeft: 8,
+    zIndex: 1000,
+    elevation: 1000, // Android
   },
   button: {
     backgroundColor: 'lightblue',
@@ -73,7 +75,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#000000a3',
     zIndex: 10000,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   menuButtons: {
     backgroundColor: 'lightblue',
@@ -88,6 +90,14 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     margin:10,
     padding:10
+  },
+  burger: {
+    padding: 10,
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 25,
   },
 })
 

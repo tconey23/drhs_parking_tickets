@@ -10,19 +10,18 @@ const AppHeader = ({setResetForm}) => {
 
   return (
     <View style={{ 
-        height: '8%', 
+        height: '10%', 
         width: '100%', 
         alignItems: 'center ', 
         justifyContent: 'center', 
         flexDirection: 'row',
         borderBottomColor: '#00000079',
-        borderBottomWidth: 0.2
+        borderBottomWidth: 0.2,
+        marginVertical: 20
         }}>
 
-    <View style={{width: '30%', height: '100%', alignItems: 'center ', justifyContent: 'center'}}>
-      <Image resizeMethod='contain' style={{width: '68%', height: '70%'}} 
-        source={{uri: 'https://resources.finalsite.net/images/f_auto,q_auto,t_image_size_6/v1752686058/jeffcopublicschoolsorg/nzyxfvpcysiodo8anlsv/PrimaryLogo.png'}}
-      />
+    <View style={{flex:1, alignItems: 'center ', justifyContent: 'center', padding:10}}>
+      <Image style={{width: '55%', height: '100%', margin: 1}} source={require('../assets/DOSS_Logo.png')}/>
     </View>
 
       <View style={{width: '40%', height: '100%', justifyContent: 'center'}}>
@@ -30,7 +29,7 @@ const AppHeader = ({setResetForm}) => {
       </View>
 
       <View style={{width: '25%'}}>
-        <Menu setResetForm={setResetForm}/>
+        <Menu setResetForm={setResetForm}/> 
       </View>
       
     </View>

@@ -38,7 +38,7 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={['top', 'right', 'bottom', 'left']}>
           <AppHeader setResetForm={setResetForm}/>
-          <InputForm resetForm={resetForm}/>
+          <InputForm resetForm={resetForm} setResetForm={setResetForm}/>
       </SafeAreaView>
     </SafeAreaProvider>
   );
